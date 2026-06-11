@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kinesis | Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>body { background: #6f42c1; height: 100vh; display: flex; align-items: center; }</style>
+</head>
+<body>
+    <div class="card mx-auto shadow-lg p-5" style="width: 400px; border-radius: 15px;">
+        <h2 class="text-center fw-bold mb-4" style="color: #6f42c1;">KINESIS</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} small p-2">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="mb-3">
+                <label class="small fw-bold">Username</label>
+                <input type="text" name="username" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="small fw-bold">Password</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            <div class="text-end mb-3">
+                <a href="{{ url_for('forgot_password') }}" class="small text-decoration-none" style="color: #6f42c1;">Forgot Password?</a>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 fw-bold py-2" style="background:#6f42c1; border:none;">SIGN IN</button>
+        </form>
+        <p class="text-center mt-4 small">New user? <a href="{{ url_for('signup') }}" style="color: #6f42c1; font-weight:bold; text-decoration:none;">Create Account</a></p>
+    </div>
+</body>
+</html>
