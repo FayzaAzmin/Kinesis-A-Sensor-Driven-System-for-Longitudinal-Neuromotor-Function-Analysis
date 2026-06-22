@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intl-tel-input.css">
+    <title>Kinesis | Signup</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); min-height: 100vh; display: flex; align-items: center; }
+        .signup-card { border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: none; }
+        /* FIXED: Enforces clear component bounds for the drop-down elements within Bootstrap layout */
+        .iti { width: 100%; display: block; }
+        .iti__country-list { max-width: 400px; z-index: 1050; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card signup-card p-4 bg-white">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold text-dark">KINESIS</h2>
+                    </div>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} p-2 small">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form action="{{ url_for('signup') }}" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-secondary">Username</label>
+                            <input type="text" name="username" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-secondary">Email Address</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-secondary">Password</label>
+                            <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                            <div class="form-text text-danger small mt-1" style="font-size: 0.82rem; font-weight: 500;">
+                                * Password must contain uppercase and lowercase letters and characters. It must be 8 characters long.
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold text-secondary">Age</label>
+                                <input type="number" name="age" class="form-control" min="1" max="120">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold text-secondary">Gender</label>
+                                <select name="gender" class="form-select">
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+    <label class="form-label fw-semibold text-secondary">Contact Mobile Number</label>
+    <div class="input-group">
+        <select id="country_code" class="form-select" style="max-width: 130px; background-color: #f8f9fa;">
+            <option value="+968" selected>OM (+968)</option>
+            <option value="+974">QA (+974)</option>
+            <option value="+880">BD (+880)</option>
+            <option value="+1">US (+1)</option>
+        </select>
+
+        <input type="text"
+               id="phone_local"
+               class="form-control"
+               placeholder="71234567"
+               pattern="\d{8}"
+               maxlength="8"
+               title="Please enter exactly an 8-digit mobile number"
+               required>
+    </div>
+    <input type="hidden" id="full_phone" name="full_mobile_number">
+</div>
+                        <script>
+    const form = document.querySelector("form");
+    const countryCodeSelect = document.querySelector("#country_code");
+    const phoneLocalInput = document.querySelector("#phone_local");
+    const fullPhoneInput = document.querySelector("#full_phone");
+
+    form.addEventListener("submit", function(e) {
+        // Combines values smoothly right before the form sends to backend (e.g., "+96871234567")
+        if (phoneLocalInput.value.trim() !== "") {
+            fullPhoneInput.value = countryCodeSelect.value + phoneLocalInput.value.trim();
+        } else {
+            fullPhoneInput.value = "";
+        }
+    });
+</script>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-secondary">User Role</label>
+                            <select name="role" class="form-select" required>
+                                <option value="" disabled selected>Select User Role...</option>
+                                <option value="patient">Patient / Healthy Individual</option>
+                                <option value="caregiver">Caregiver</option>
+                                <option value="clinician">Clinician/Researcher</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2 shadow-sm mb-3" style="background:#6f42c1; border:none;">Create Account</button>
+                    </form>
+
+                    <div class="text-center">
+                        <a href="{{ url_for('login') }}" class="text-decoration-none small text-primary">Already registered? Log in to Kinesis.</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intl-tel-input.min.js"></script>
+    <script>
+        const phoneInput = document.querySelector("#phone");
+        const fullPhoneInput = document.querySelector("#full_phone");
+
+        // FIXED: Explicit preferred country settings to ensure rendering even if external geo-APIs encounter rate limits
+        const iti = window.intlTelInput(phoneInput, {
+            initialCountry: "om",
+            preferredCountries: ["om", "bd", "qa", "us"],
+            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
+        });
+
+        phoneInput.closest("form").addEventListener("submit", function() {
+            if (phoneInput.value.trim() !== "") {
+                fullPhoneInput.value = iti.getNumber();
+            } else {
+                fullPhoneInput.value = "";
+            }
+        });
+    </script>
+</body>
+</html>

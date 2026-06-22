@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kinesis</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>.custom-card { border-radius:12px; border:none; box-shadow:0 4px 12px rgba(0,0,0,0.05); }</style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-dark p-3 mb-4">
+        <div class="container">
+            <span class="navbar-brand fw-bold">KINESIS CAREGIVER DASHBOARD</span>
+            <a href="/logout" class="btn btn-sm btn-outline-light">Log Out</a>
+        </div>
+    </nav>
+    <div class="container">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}{% for c, m in messages %}<div class="alert alert-{{c}} shadow-sm">{{m}}</div>{% endfor %}{% endif %}
+        {% endwith %}
+
+        {% if alerts %}
+        <div class="alert alert-warning border-0 shadow-sm p-3 mb-4">
+            <strong>THRESHOLD ALERT:</strong> High motor anomalies detected for:
+            <span class="badge bg-danger fs-6 ms-2">{{ alerts|join(', ') }}</span>
+        </div>
+        {% endif %}
+
+        <div class="card custom-card p-4 mb-4 bg-white">
+            <h5 class="fw-bold text-dark mb-2">Connect New Patient Profile</h5>
+            <form action="/caregiver/connect-patient" method="POST" class="row g-2">
+                <div class="col-md-9">
+                    <input type="text" name="patient_username" class="form-control" placeholder="Enter patient's registered username (e.g., patient_test)" required>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100 fw-bold">Link to Dashboard</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card custom-card p-4 bg-white">
+            <h4 class="fw-bold mb-4 text-secondary">Assigned Patient Profile</h4>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Patient Identity</th>
+                            <th>Current Diagnostic Variant</th>
+                            <th>Active UPDRS Score</th>
+                            <th>System Tracking Control</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in patients %}
+                        <tr>
+                            <td><strong class="fs-5">{{p.username}}</strong></td>
+                            <td>
+                                {% if p.reports %}
+                                <span class="badge bg-secondary p-2">{{p.reports[-1].diagnosis}}</span>
+                                {% else %}<span class="text-muted">No Stream Cached</span>{% endif %}
+                            </td>
+                            <td>
+                                {% if p.reports %}
+                                <h3 class="fw-bold mb-0 {{'text-danger' if p.reports[-1].updrs_score >=3 else 'text-success'}}">{{p.reports[-1].updrs_score}}<span class="fs-6 text-muted">/4</span></h3>
+                                {% else %}<span class="text-muted">--</span>{% endif %}
+                            </td>
+                            <td>
+                                <a href="/proxy/patient/{{p.id}}" class="btn btn-sm btn-primary px-3 fw-bold">Access Proxy Dashboard</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">No active patient profiles found. Use the search bar above to link one.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
